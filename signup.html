@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Watching Zone</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        /* Netflix-style logo styles */
+        .netflix-logo {
+            color: #e50914;
+            font-family: 'Arial Black', 'Arial Bold', Gadget, sans-serif;
+            font-weight: 900;
+            font-size: 28px;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+        
+        .netflix-logo:hover {
+            color: #f40612;
+        }
+        
+        body {
+            background-color: #000;
+            color: #fff;
+            min-height: 100vh;
+            width: 100%;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        .background-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("assests/img/bg.jpg");
+            background-size: cover;
+            background-position: center;
+            opacity: 0.5;
+            z-index: 0;
+            animation: zoomBackground 30s infinite alternate ease-in-out;
+        }
+        
+        @keyframes zoomBackground {
+            0% {
+                transform: scale(1);
+            }
+            100% {
+                transform: scale(1.1);
+            }
+        }
+        
+        .header {
+            position: relative;
+            z-index: 2;
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            color: #e50914;
+            font-size: 32px;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        
+        .signup-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 70vh;
+            width: 100%;
+            position: relative;
+            z-index: 2;
+            padding: 20px;
+            animation: fadeIn 0.8s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .signup-box {
+            width: 100%;
+            max-width: 450px;
+            margin: 0 auto;
+            background-color: rgba(0, 0, 0, 0.75);
+            border-radius: 8px;
+            padding: 40px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            transform: translateZ(0);
+            transition: all 0.4s ease;
+        }
+        
+        .signup-box:hover {
+            box-shadow: 0 20px 40px rgba(229, 9, 20, 0.2);
+        }
+        
+        .signup-box h1 {
+            color: #fff;
+            font-size: 32px;
+            margin-bottom: 28px;
+            text-align: center;
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+        
+        .signup-box h1:after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(to right, transparent, #e50914, transparent);
+            transition: width 0.4s ease;
+        }
+        
+        .signup-box:hover h1:after {
+            width: 80px;
+        }
+        
+        .form-group {
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 16px 20px;
+            background: rgba(51, 51, 51, 0.8);
+            border: none;
+            border-radius: 4px;
+            color: #fff;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+            outline: none;
+            border-bottom: 2px solid transparent;
+        }
+        
+        .form-group input:focus {
+            background: rgba(69, 69, 69, 0.8);
+            border-bottom: 2px solid #e50914;
+            box-shadow: 0 0 10px rgba(229, 9, 20, 0.2);
+        }
+        
+        .form-group label {
+            position: absolute;
+            top: 16px;
+            left: 20px;
+            color: #aaa;
+            font-size: 16px;
+            pointer-events: none;
+            z-index: 2;
+        }
+        
+        .form-group input:placeholder-shown + label {
+            display: none;
+        }
+        
+        .form-group input::placeholder {
+            color: #aaa;
+            font-size: 16px;
+            opacity: 1;
+        }
+        
+        .form-group input:focus::placeholder {
+            color: transparent;
+        }
+        
+        .error-message {
+            color: #e50914;
+            font-size: 13px;
+            margin-top: 8px;
+            display: none;
+            animation: shake 0.4s linear;
+            padding-left: 5px;
+        }
+        
+        @keyframes shake {
+            0%, 100% {
+                transform: translateX(0);
+            }
+            25% {
+                transform: translateX(-5px);
+            }
+            50% {
+                transform: translateX(5px);
+            }
+            75% {
+                transform: translateX(-5px);
+            }
+        }
+        
+        .signup-button {
+            width: 100%;
+            padding: 16px;
+            background: #e50914;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .signup-button:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: all 0.6s ease;
+        }
+        
+        .signup-button:hover {
+            background: #f40612;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(229, 9, 20, 0.4);
+        }
+        
+        .signup-button:hover:before {
+            left: 100%;
+        }
+        
+        .signup-button:active {
+            transform: translateY(1px);
+            box-shadow: 0 4px 10px rgba(229, 9, 20, 0.3);
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 15px;
+            color: #fff;
+            font-size: 14px;
+        }
+        
+        .loading:after {
+            content: '';
+            display: inline-block;
+            width: 0;
+            animation: dots 1.5s infinite;
+            overflow: hidden;
+        }
+        
+        @keyframes dots {
+            0% {
+                content: '';
+            }
+            25% {
+                content: '.';
+            }
+            50% {
+                content: '..';
+            }
+            75% {
+                content: '...';
+            }
+            100% {
+                content: '';
+            }
+        }
+        
+        .benefits {
+            margin-top: 30px;
+            color: #b3b3b3;
+            font-size: 14px;
+            background-color: rgba(0, 0, 0, 0.4);
+            border-radius: 8px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .benefits:hover {
+            background-color: rgba(0, 0, 0, 0.6);
+            transform: translateY(-2px);
+        }
+        
+        .benefits p {
+            margin: 12px 0;
+            display: flex;
+            align-items: center;
+            opacity: 0;
+            transform: translateX(-10px);
+            animation: slideFadeIn 0.5s forwards;
+        }
+        
+        .benefits p:nth-child(1) {
+            animation-delay: 0.2s;
+        }
+        
+        .benefits p:nth-child(2) {
+            animation-delay: 0.4s;
+        }
+        
+        .benefits p:nth-child(3) {
+            animation-delay: 0.6s;
+        }
+        
+        @keyframes slideFadeIn {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .benefits p:before {
+            content: '✓';
+            color: #e50914;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        
+        .signin-link {
+            color: #b3b3b3;
+            font-size: 16px;
+            margin-top: 24px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .signin-link a {
+            color: #fff;
+            text-decoration: none;
+            position: relative;
+        }
+        
+        .signin-link a:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 1px;
+            bottom: -2px;
+            left: 0;
+            background-color: #e50914;
+            transition: width 0.3s ease;
+        }
+        
+        .signin-link a:hover:after {
+            width: 100%;
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                padding: 15px 30px;
+            }
+            
+            .signup-box {
+                padding: 30px 20px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .signup-box h1 {
+                font-size: 26px;
+            }
+            
+            .form-group input {
+                padding: 14px 15px;
+                font-size: 14px;
+            }
+            
+            .benefits {
+                padding: 15px;
+            }
+        }
+    </style>
+    <script type="module" src="firebase.js"></script>
+</head>
+<body>
+    <div class="background-image"></div>
+    
+    <header class="header">
+        <a href="index.html" class="netflix-logo">Watching Zone</a>
+    </header>
+    
+    <div class="signup-container">
+        <div class="signup-box">
+            <h1>Sign Up</h1>
+            <form id="signupForm">
+                <div class="form-group">
+                    <input type="email" id="email" placeholder="Email" required>
+                    <label for="email"></label>
+                    <div id="emailError" class="error-message">Please enter a valid email.</div>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="password" placeholder="Add a password" required minlength="6">
+                    <label for="password"></label>
+                    <div id="passwordError" class="error-message">Your password must contain between 6 and 60 characters.</div>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="confirmPassword" placeholder="Confirm password" required minlength="6">
+                    <label for="confirmPassword"></label>
+                    <div id="confirmPasswordError" class="error-message">Passwords do not match.</div>
+                </div>
+                <button type="submit" class="signup-button">Sign Up</button>
+                <div id="loading" class="loading">Creating your account</div>
+                
+                <div class="benefits">
+                    <p>No ads and no extra fees. Ever.</p>
+                    <p>Unlimited viewing on all your devices.</p>
+                    <p>Cancel anytime.</p>
+                </div>
+                
+                <p class="signin-link">Already have an account? <a href="login.html">Sign in now</a></p>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { signUp } from './auth.js';
+
+        const signupForm = document.getElementById('signupForm');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        const emailError = document.getElementById('emailError');
+        const passwordError = document.getElementById('passwordError');
+        const confirmPasswordError = document.getElementById('confirmPasswordError');
+        const loading = document.getElementById('loading');
+        
+        function showError(element, message) {
+            if (message) element.textContent = message;
+            element.style.display = 'block';
+        }
+
+        function hideError(element) {
+            element.style.display = 'none';
+        }
+        
+        function validateEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+        
+        emailInput.addEventListener('input', function() {
+            hideError(emailError);
+        });
+        
+        passwordInput.addEventListener('input', function() {
+            hideError(passwordError);
+        });
+        
+        confirmPasswordInput.addEventListener('input', function() {
+            hideError(confirmPasswordError);
+        });
+
+        function getErrorMessage(error) {
+            console.log('Error details:', error);
+            
+            if (!error) {
+                return 'An unknown error occurred. Please try again.';
+            }
+
+            // Handle specific Firebase error codes
+            switch (error.code) {
+                case 'auth/email-already-in-use':
+                    return 'This email is already registered. Please use a different email or sign in.';
+                case 'auth/invalid-email':
+                    return 'Please enter a valid email address.';
+                case 'auth/operation-not-allowed':
+                    return 'Email/password accounts are not enabled. Please contact support.';
+                case 'auth/weak-password':
+                    return 'Password is too weak. Please use a stronger password.';
+                case 'auth/network-request-failed':
+                    return 'Network error. Please check your internet connection and try again.';
+                case 'auth/too-many-requests':
+                    return 'Too many attempts. Please try again later.';
+                default:
+                    return error.message || 'An error occurred. Please try again.';
+            }
+        }
+        
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Clear previous errors
+            hideError(emailError);
+            hideError(passwordError);
+            hideError(confirmPasswordError);
+            
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+            
+            let hasError = false;
+            
+            // Validate email format
+            if (!email || !validateEmail(email)) {
+                showError(emailError);
+                hasError = true;
+            }
+            
+            // Validate password length
+            if (!password || password.length < 6) {
+                showError(passwordError);
+                hasError = true;
+            }
+            
+            // Validate passwords match
+            if (password !== confirmPassword) {
+                showError(confirmPasswordError);
+                hasError = true;
+            }
+            
+            if (hasError) return;
+            
+            // Show loading state
+            loading.style.display = 'block';
+            signupForm.querySelector('button').disabled = true;
+            
+            try {
+                const result = await signUp(email, password);
+                console.log('Signup result:', result);
+                
+                if (result.success) {
+                    window.location.href = 'index.html';
+                } else {
+                    const errorMessage = getErrorMessage(result.details || result);
+                    showError(emailError, errorMessage);
+                }
+            } catch (error) {
+                console.error('Unexpected error:', error);
+                showError(emailError, 'An unexpected error occurred. Please try again.');
+            } finally {
+                loading.style.display = 'none';
+                signupForm.querySelector('button').disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

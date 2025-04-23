@@ -1,0 +1,1579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browse Movies - Watching Zone</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #141414;
+            color: #fff;
+            min-height: 100vh;
+            width: 100%;
+        }
+        
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 50px;
+            background-color: rgba(0, 0, 0, 0.3);
+            position: fixed;
+            width: 100%;
+            z-index: 10;
+            transition: background-color 0.3s;
+        }
+        
+        header.scrolled {
+            background-color: #141414;
+        }
+        
+        .logo {
+            color: #e50914;
+            font-size: 32px;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+        
+        .nav-links li {
+            margin-left: 20px;
+        }
+        
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            font-size: 17px;
+        }
+        
+        .nav-links a:hover {
+            color: #ccc;
+        }
+        
+        .right-nav {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .search-icon, .profile-icon {
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px;
+        }
+        
+        .search-icon:hover, .profile-icon:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+        
+        .search-icon svg, .profile-icon svg {
+            width: 100%;
+            height: 100%;
+            fill: #fff;
+            transition: fill 0.3s ease;
+        }
+        
+        .search-icon:hover svg, .profile-icon:hover svg {
+            fill: #e50914;
+        }
+        
+        /* Hero section */
+        .hero {
+            height: 100vh;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: flex-end;
+            padding: 0 50px;
+        }
+        
+        .hero-content {
+            margin-bottom: 150px;
+            max-width: 600px;
+        }
+        
+        .hero-title {
+            font-size: 64px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        
+        .hero-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .play-btn, .info-btn {
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .play-btn {
+            background-color: #fff;
+            color: #000;
+        }
+        
+        .info-btn {
+            background-color: rgba(109, 109, 110, 0.7);
+            color: #fff;
+        }
+        
+        /* Movie sections */
+        .movie-section {
+            padding: 50px;
+            position: relative;
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        
+        .movie-row-container {
+            position: relative;
+            width: 100%;
+            padding: 0 60px;
+        }
+        
+        .scroll-button {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+            background-color: rgba(0, 0, 0, 0.5);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
+        }
+        
+        .scroll-button:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+        
+        .scroll-left {
+            left: 0;
+        }
+        
+        .scroll-right {
+            right: 0;
+        }
+        
+        .movie-row {
+            display: flex;
+            gap: 15px;
+            overflow-x: auto;
+            padding: 20px 0;
+            scrollbar-width: none;
+            scroll-behavior: smooth;
+        }
+        
+        .movie-row::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .movie-card {
+            flex: 0 0 auto;
+            width: 320px;
+            height: 180px;
+            border-radius: 4px;
+            background-size: cover;
+            background-position: center;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+        
+        .movie-card:hover {
+            transform: scale(1.1) rotateY(5deg);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+        
+        .movie-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.95), rgba(0,0,0,0.4));
+            padding: 20px;
+            color: white;
+            transform: translateY(100%);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            opacity: 0;
+            backdrop-filter: blur(5px);
+        }
+        
+        .movie-card:hover .movie-overlay {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .movie-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transform: translateY(20px);
+            transition: transform 0.3s ease 0.1s;
+        }
+        
+        .movie-details {
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transform: translateY(20px);
+            transition: transform 0.3s ease 0.2s;
+        }
+        
+        .movie-genres {
+            font-size: 13px;
+            color: #aaa;
+            margin-top: 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            transform: translateY(20px);
+            transition: transform 0.3s ease 0.3s;
+        }
+        
+        .movie-card:hover .movie-title,
+        .movie-card:hover .movie-details,
+        .movie-card:hover .movie-genres {
+            transform: translateY(0);
+        }
+        
+        .movie-rating {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #ffd700;
+        }
+        
+        .movie-year {
+            color: #aaa;
+            position: relative;
+        }
+        
+        .movie-year::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: #e50914;
+            transition: width 0.3s ease;
+        }
+        
+        .movie-card:hover .movie-year::after {
+            width: 100%;
+        }
+        
+        /* Add a subtle glow effect */
+        .movie-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at center, rgba(229,9,20,0.2) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .movie-card:hover::before {
+            opacity: 1;
+        }
+        
+        /* Single movie view */
+        .movie-detail {
+            margin-top: 80px;
+            padding: 50px;
+            display: none;
+        }
+        
+        .movie-info {
+            display: flex;
+            gap: 30px;
+        }
+        
+        .movie-poster {
+            width: 300px;
+            height: 450px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 8px;
+        }
+        
+        .movie-text {
+            flex: 1;
+        }
+        
+        .movie-title {
+            font-size: 36px;
+            margin-bottom: 10px;
+        }
+        
+        .movie-meta {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            color: #aaa;
+        }
+        
+        .movie-description {
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .movie-cast {
+            margin-top: 20px;
+        }
+        
+        .cast-title {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        
+        .cast-list {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+        }
+        
+        .cast-item {
+            text-align: center;
+            width: 100px;
+        }
+        
+        .cast-image {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-size: cover;
+            background-position: center;
+            margin-bottom: 5px;
+        }
+        
+        .cast-name {
+            font-size: 12px;
+        }
+        
+        /* Video player modal styles */
+        .video-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .video-container {
+            width: 80%;
+            max-width: 1200px;
+            aspect-ratio: 16/9;
+            position: relative;
+            margin: auto;
+            transform: translateY(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .video-container:hover {
+            transform: translateY(-5px);
+        }
+        
+        .close-video {
+            position: absolute;
+            top: -50px;
+            right: 0;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+            padding: 5px;
+            transition: color 0.3s ease;
+            z-index: 2;
+        }
+        
+        .close-video:hover {
+            color: #e50914;
+        }
+        
+        .video-player {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        .no-trailer {
+            color: white;
+            text-align: center;
+            padding: 40px;
+            font-size: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 8px;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Loading animation */
+        .loading-spinner {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #e50914;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        
+        .movie-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+            justify-content: center;
+        }
+        
+        .action-icon {
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 8px;
+            position: relative;
+        }
+        
+        .action-icon.play {
+            background: #e50914;
+            width: 40px;
+            height: 40px;
+        }
+        
+        .action-icon.play:hover {
+            background: #f40612;
+        }
+        
+        .action-icon:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+        
+        .action-icon svg {
+            width: 100%;
+            height: 100%;
+            fill: #fff;
+            transition: fill 0.3s ease;
+        }
+        
+        .action-icon:hover svg {
+            fill: #e50914;
+        }
+        
+        .action-icon.play svg {
+            fill: #fff;
+        }
+        
+        .action-icon.liked svg,
+        .action-icon.disliked svg,
+        .action-icon.in-list svg {
+            fill: #e50914;
+        }
+        
+        .action-tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            margin-bottom: 5px;
+        }
+        
+        .action-icon:hover .action-tooltip {
+            opacity: 1;
+        }
+        
+        .wishlist-section {
+            padding: 50px;
+            margin-top: 80px;
+        }
+        
+        .wishlist-title {
+            font-size: 32px;
+            margin-bottom: 30px;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .wishlist-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        
+        /* Netflix-style logo styles */
+        .netflix-logo {
+            color: #e50914;
+            font-family: 'Arial Black', 'Arial Bold', Gadget, sans-serif;
+            font-weight: 900;
+            font-size: 28px;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+        
+        .netflix-logo:hover {
+            color: #f40612;
+        }
+        
+        /* Profile dropdown styles */
+        .profile-container {
+            position: relative;
+        }
+        
+        .profile-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 200px;
+            background-color: #141414;
+            border: 1px solid #333;
+            border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(-10px);
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .profile-container:hover .profile-dropdown,
+        .profile-dropdown.show {
+            opacity: 1;
+            transform: translateY(10px);
+            visibility: visible;
+        }
+        
+        .profile-header {
+            padding: 16px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .profile-name {
+            font-weight: bold;
+            color: #fff;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+        
+        .profile-email {
+            color: #999;
+            font-size: 14px;
+            word-break: break-all;
+        }
+        
+        .profile-actions {
+            padding: 8px 0;
+        }
+        
+        .profile-actions a {
+            display: block;
+            padding: 12px 16px;
+            color: #fff;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+        
+        .profile-actions a:hover {
+            background-color: #333;
+        }
+        
+        .logout-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .logout-icon {
+            width: 16px;
+            height: 16px;
+        }
+    </style>
+</head>
+<body>
+    <header id="header">
+        <a href="movies.html" class="netflix-logo">Watching Zone</a>
+        <ul class="nav-links">
+            <li><a href="#" id="homeLink" class="active">Home</a></li>
+            <li><a href="#" id="moviesLink">Movies</a></li>
+            <li><a href="#" id="tvShowsLink">TV Shows</a></li>
+            <li><a href="#" id="myListLink">My List</a></li>
+        </ul>
+        <div class="right-nav">
+            <div class="search-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+            </div>
+            <div class="profile-container">
+                <div class="profile-icon" id="profileIcon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                </div>
+                <div class="profile-dropdown" id="profileDropdown">
+                    <div class="profile-header">
+                        <div class="profile-name" id="profileName">Loading...</div>
+                        <div class="profile-email" id="profileEmail">Loading...</div>
+                    </div>
+                    <div class="profile-actions">
+                        <a href="#" class="logout-btn" id="logoutBtn">
+                            <svg class="logout-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                <polyline points="16 17 21 12 16 7"></polyline>
+                                <line x1="21" y1="12" x2="9" y2="12"></line>
+                            </svg>
+                            Sign Out
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <div class="hero" id="hero-section">
+        <div class="hero-content">
+            <h1 class="hero-title" id="hero-title">Loading...</h1>
+            <div class="hero-buttons">
+                <button class="play-btn">▶ Play</button>
+                <button class="info-btn">ⓘ More Info</button>
+            </div>
+        </div>
+    </div>
+    
+    <section class="movie-section">
+        <h2 class="section-title">Trending Now</h2>
+        <div class="movie-row-container">
+            <button class="scroll-button scroll-left" onclick="scrollRow('trending-row', -300)">❮</button>
+            <div class="movie-row" id="trending-row">
+                <!-- Will be populated by JavaScript -->
+            </div>
+            <button class="scroll-button scroll-right" onclick="scrollRow('trending-row', 300)">❯</button>
+        </div>
+    </section>
+    
+    <section class="movie-section">
+        <h2 class="section-title">New Releases</h2>
+        <div class="movie-row-container">
+            <button class="scroll-button scroll-left" onclick="scrollRow('new-releases-row', -300)">❮</button>
+            <div class="movie-row" id="new-releases-row">
+                <!-- Will be populated by JavaScript -->
+            </div>
+            <button class="scroll-button scroll-right" onclick="scrollRow('new-releases-row', 300)">❯</button>
+        </div>
+    </section>
+    
+    <section class="movie-section">
+        <h2 class="section-title">Blockbuster Movies</h2>
+        <div class="movie-row-container">
+            <button class="scroll-button scroll-left" onclick="scrollRow('blockbuster-row', -300)">❮</button>
+            <div class="movie-row" id="blockbuster-row">
+                <!-- Will be populated by JavaScript -->
+            </div>
+            <button class="scroll-button scroll-right" onclick="scrollRow('blockbuster-row', 300)">❯</button>
+        </div>
+    </section>
+
+    <!-- TV Shows Section (hidden by default) -->
+    <section class="movie-section" id="tv-shows-section" style="display: none;">
+        <div class="movie-row" id="tv-shows-row">
+            <!-- Will be populated by JavaScript using TMDB API -->
+        </div>
+    </section>
+
+    <!-- Update My List Section -->
+    <section class="wishlist-section" id="my-list-section" style="display: none;">
+        <h2 class="wishlist-title">Your Wishlist</h2>
+        <div class="wishlist-grid" id="wishlist-grid">
+            <!-- Will be populated from My List -->
+        </div>
+    </section>
+    
+    <!-- This section will be shown when a movie is clicked -->
+    <section class="movie-detail" id="movie-detail">
+        <!-- Will be populated by JavaScript when a movie is clicked -->
+    </section>
+
+    <!-- Update video modal -->
+    <div class="video-modal" id="videoModal">
+        <div class="video-container">
+            <button class="close-video" onclick="closeVideo()">✕</button>
+            <div class="loading-spinner" id="loadingSpinner"></div>
+            <div id="videoPlayer"></div>
+            <div class="no-trailer" id="noTrailer" style="display: none;">
+                Sorry, no trailer available for this content.
+            </div>
+        </div>
+    </div>
+
+    <!-- Include TMDB API script -->
+    <script src="tmdb.js"></script>
+    <script type="module" src="script.js"></script>
+    
+    <script>
+        // Handle header scrolling effect
+        window.addEventListener('scroll', function() {
+            const header = document.getElementById('header');
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // Navigation functionality
+        document.getElementById('homeLink').addEventListener('click', function(e) {
+            e.preventDefault();
+            updateActiveLink(this);
+            
+            // Hide wishlist section
+            document.getElementById('my-list-section').style.display = 'none';
+            
+            // Show all movie sections
+            document.querySelectorAll('.movie-section').forEach(section => {
+                section.style.display = 'block';
+            });
+            
+            loadHomeContent();
+            initializeHeroSection('home');
+        });
+
+        document.getElementById('moviesLink').addEventListener('click', function(e) {
+            e.preventDefault();
+            updateActiveLink(this);
+            
+            // Hide wishlist section
+            document.getElementById('my-list-section').style.display = 'none';
+            
+            // Show all movie sections
+            document.querySelectorAll('.movie-section').forEach(section => {
+                section.style.display = 'block';
+            });
+            
+            loadMoviesContent();
+            initializeHeroSection('movies');
+        });
+
+        document.getElementById('tvShowsLink').addEventListener('click', function(e) {
+            e.preventDefault();
+            updateActiveLink(this);
+            
+            // Hide wishlist section
+            document.getElementById('my-list-section').style.display = 'none';
+            
+            // Show all movie sections
+            document.querySelectorAll('.movie-section').forEach(section => {
+                section.style.display = 'block';
+            });
+            
+            loadTVShowsContent();
+            initializeHeroSection('tvshows');
+        });
+
+        document.getElementById('myListLink').addEventListener('click', function(e) {
+            e.preventDefault();
+            updateActiveLink(this);
+            
+            // Hide all movie sections
+            document.querySelectorAll('.movie-section').forEach(section => {
+                section.style.display = 'none';
+            });
+            
+            // Show only the wishlist section
+            const wishlistSection = document.getElementById('my-list-section');
+            wishlistSection.style.display = 'block';
+            
+            // Load wishlist content
+            loadMyListContent();
+        });
+
+        function updateActiveLink(activeLink) {
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.classList.remove('active');
+            });
+            activeLink.classList.add('active');
+        }
+
+        // Function to shuffle array (for random content)
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Load Home content (mix of movies and TV shows)
+        async function loadHomeContent() {
+            try {
+                console.log('Fetching Home content...');
+                const [movies, tvShows] = await Promise.all([
+                    fetch(`${BASE_URL}/movie/popular?api_key=${API_KEY}&language=en-US`).then(res => res.json()),
+                    fetch(`${BASE_URL}/tv/popular?api_key=${API_KEY}&language=en-US`).then(res => res.json())
+                ]);
+                console.log('Home Movies:', movies);
+                console.log('Home TV Shows:', tvShows);
+
+                const allContent = [...movies.results, ...tvShows.results];
+                const shuffledContent = shuffleArray(allContent);
+
+                // Update hero section with random content
+                const heroContent = shuffledContent[0];
+                updateHeroSection(heroContent);
+
+                // Split shuffled content into three sections
+                const sectionSize = Math.floor(shuffledContent.length / 3);
+                populateMovieRow('trending-row', shuffledContent.slice(0, sectionSize));
+                populateMovieRow('new-releases-row', shuffledContent.slice(sectionSize, sectionSize * 2));
+                populateMovieRow('blockbuster-row', shuffledContent.slice(sectionSize * 2));
+            } catch (error) {
+                console.error('Error loading home content:', error);
+            }
+        }
+
+        // Load Movies content
+        async function loadMoviesContent() {
+            try {
+                console.log('Fetching Movies content...');
+                const [trending, nowPlaying, popular] = await Promise.all([
+                    fetch(`${BASE_URL}/trending/movie/day?api_key=${API_KEY}&language=en-US`).then(res => res.json()),
+                    fetch(`${BASE_URL}/movie/now_playing?api_key=${API_KEY}&language=en-US`).then(res => res.json()),
+                    fetch(`${BASE_URL}/movie/popular?api_key=${API_KEY}&language=en-US`).then(res => res.json())
+                ]);
+                console.log('Trending Movies:', trending);
+                console.log('Now Playing Movies:', nowPlaying);
+                console.log('Popular Movies:', popular);
+
+                // Update hero section with random movie
+                const heroMovie = shuffleArray([...trending.results, ...nowPlaying.results, ...popular.results])[0];
+                updateHeroSection(heroMovie);
+
+                // Update section titles
+                document.querySelectorAll('.section-title')[0].textContent = 'Trending Now';
+                document.querySelectorAll('.section-title')[1].textContent = 'New Releases';
+                document.querySelectorAll('.section-title')[2].textContent = 'Blockbuster Movies';
+
+                // Populate sections with shuffled content
+                populateMovieRow('trending-row', shuffleArray(trending.results).slice(0, 10));
+                populateMovieRow('new-releases-row', shuffleArray(nowPlaying.results).slice(0, 10));
+                populateMovieRow('blockbuster-row', shuffleArray(popular.results).slice(0, 10));
+            } catch (error) {
+                console.error('Error loading movies content:', error);
+            }
+        }
+
+        // Load TV Shows content
+        async function loadTVShowsContent() {
+            try {
+                console.log('Fetching TV Shows content...');
+                const [trending, airingToday, popular] = await Promise.all([
+                    fetch(`${BASE_URL}/trending/tv/day?api_key=${API_KEY}&language=en-US`).then(res => res.json()),
+                    fetch(`${BASE_URL}/tv/airing_today?api_key=${API_KEY}&language=en-US`).then(res => res.json()),
+                    fetch(`${BASE_URL}/tv/popular?api_key=${API_KEY}&language=en-US`).then(res => res.json())
+                ]);
+                console.log('Trending TV Shows:', trending);
+                console.log('Airing Today TV Shows:', airingToday);
+                console.log('Popular TV Shows:', popular);
+
+                // Update hero section with random TV show
+                const heroShow = shuffleArray([...trending.results, ...airingToday.results, ...popular.results])[0];
+                updateHeroSection(heroShow);
+
+                // Update section titles
+                document.querySelectorAll('.section-title')[0].textContent = 'Trending Now';
+                document.querySelectorAll('.section-title')[1].textContent = 'New Releases';
+                document.querySelectorAll('.section-title')[2].textContent = 'Blockbuster TV Shows';
+
+                // Populate sections with shuffled content
+                populateMovieRow('trending-row', shuffleArray(trending.results).slice(0, 10));
+                populateMovieRow('new-releases-row', shuffleArray(airingToday.results).slice(0, 10));
+                populateMovieRow('blockbuster-row', shuffleArray(popular.results).slice(0, 10));
+            } catch (error) {
+                console.error('Error loading TV shows content:', error);
+            }
+        }
+
+        // Load My List content
+        function loadMyListContent() {
+            const myList = JSON.parse(localStorage.getItem('myList') || '[]');
+            const wishlistGrid = document.getElementById('wishlist-grid');
+            
+            // Clear existing content
+            wishlistGrid.innerHTML = '';
+            
+            if (myList.length === 0) {
+                wishlistGrid.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 50px; color: #666;">
+                        <h3>Your wishlist is empty</h3>
+                        <p>Add movies and TV shows to your wishlist to see them here</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Create and append movie cards
+            myList.forEach(movie => {
+                const movieCard = createMovieCard(movie);
+                if (movieCard) {
+                    // Set the add to list button to show checkmark
+                    const addToListButton = movieCard.querySelector('.addToList');
+                    if (addToListButton) {
+                        addToListButton.classList.add('in-list');
+                        const plusIcon = addToListButton.querySelector('.plus-icon');
+                        const checkIcon = addToListButton.querySelector('.check-icon');
+                        plusIcon.style.display = 'none';
+                        checkIcon.style.display = 'block';
+                        
+                        // Update click handler to remove from list
+                        addToListButton.onclick = (e) => {
+                            e.stopPropagation();
+                            removeFromMyList(movie);
+                            movieCard.remove();
+                            
+                            // If no items left, show empty message
+                            if (wishlistGrid.children.length === 0) {
+                                wishlistGrid.innerHTML = `
+                                    <div style="grid-column: 1 / -1; text-align: center; padding: 50px; color: #666;">
+                                        <h3>Your wishlist is empty</h3>
+                                        <p>Add movies and TV shows to your wishlist to see them here</p>
+                                    </div>
+                                `;
+                            }
+                        };
+                    }
+                    wishlistGrid.appendChild(movieCard);
+                }
+            });
+        }
+
+        // Update hero section
+        function updateHeroSection(content) {
+            const hero = document.getElementById('hero-section');
+            const heroTitle = document.getElementById('hero-title');
+            
+            if (content && content.backdrop_path) {
+                hero.style.backgroundImage = `url('${IMAGE_BASE_URL}${BACKDROP_SIZE}${content.backdrop_path}')`;
+                heroTitle.textContent = content.title || content.name;
+            }
+        }
+
+        // Create HTML for a movie card
+        function createMovieCard(movie) {
+            const backdropPath = movie.backdrop_path || movie.poster_path;
+            if (!backdropPath) return '';
+            
+            const movieCard = document.createElement('div');
+            movieCard.className = 'movie-card';
+            movieCard.style.backgroundImage = `url('${IMAGE_BASE_URL}${POSTER_SIZE}${backdropPath}')`;
+            movieCard.dataset.id = movie.id;
+            movieCard.dataset.type = movie.media_type || 'movie';
+            
+            // Create overlay with movie details
+            const overlay = document.createElement('div');
+            overlay.className = 'movie-overlay';
+            
+            // Format release date
+            const releaseDate = movie.release_date || movie.first_air_date;
+            const year = releaseDate ? new Date(releaseDate).getFullYear() : '';
+            
+            // Format rating
+            const rating = movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A';
+            
+            // Get genres (first 2)
+            const genres = movie.genre_ids ? movie.genre_ids.slice(0, 2).map(id => {
+                const genre = GENRE_MAP[movie.media_type || 'movie'][id];
+                return genre || '';
+            }).filter(Boolean).join(', ') : '';
+            
+            // Create action buttons
+            const actionsDiv = document.createElement('div');
+            actionsDiv.className = 'movie-actions';
+            
+            // Play button
+            const playButton = createActionButton('play', 'Play', `
+                <svg viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z"/>
+                </svg>
+            `);
+            
+            // Like button
+            const likeButton = createActionButton('like', 'Like', `
+                <svg viewBox="0 0 24 24">
+                    <path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/>
+                </svg>
+            `);
+            
+            // Dislike button
+            const dislikeButton = createActionButton('dislike', 'Dislike', `
+                <svg viewBox="0 0 24 24">
+                    <path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.58-6.59c.37-.36.59-.86.59-1.41V5c0-1.1-.9-2-2-2zm4 0v12h4V3h-4z"/>
+                </svg>
+            `);
+            
+            // Add to list button
+            const addToListButton = createActionButton('addToList', 'Add to My List', `
+                <svg viewBox="0 0 24 24" class="plus-icon">
+                    <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                </svg>
+                <svg viewBox="0 0 24 24" class="check-icon" style="display: none;">
+                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+                </svg>
+            `);
+            
+            // Add event listeners
+            playButton.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const contentType = movie.media_type || 'movie';
+                const videoKey = await getVideoKey(movie.id, contentType);
+                playVideo(videoKey);
+            });
+            
+            likeButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleAction(likeButton, 'liked');
+                if (dislikeButton.classList.contains('disliked')) {
+                    dislikeButton.classList.remove('disliked');
+                }
+            });
+            
+            dislikeButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleAction(dislikeButton, 'disliked');
+                if (likeButton.classList.contains('liked')) {
+                    likeButton.classList.remove('liked');
+                }
+            });
+            
+            addToListButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isInList = addToListButton.classList.contains('in-list');
+                toggleAction(addToListButton, 'in-list');
+                
+                // Toggle between plus and check icons
+                const plusIcon = addToListButton.querySelector('.plus-icon');
+                const checkIcon = addToListButton.querySelector('.check-icon');
+                plusIcon.style.display = isInList ? 'block' : 'none';
+                checkIcon.style.display = isInList ? 'none' : 'block';
+                
+                addToMyList(movie);
+            });
+            
+            // Check if movie is in My List
+            const myList = JSON.parse(localStorage.getItem('myList') || '[]');
+            const isInList = myList.some(item => item.id === movie.id);
+            if (isInList) {
+                addToListButton.classList.add('in-list');
+                const plusIcon = addToListButton.querySelector('.plus-icon');
+                const checkIcon = addToListButton.querySelector('.check-icon');
+                plusIcon.style.display = 'none';
+                checkIcon.style.display = 'block';
+            }
+            
+            actionsDiv.appendChild(playButton);
+            actionsDiv.appendChild(likeButton);
+            actionsDiv.appendChild(dislikeButton);
+            actionsDiv.appendChild(addToListButton);
+            
+            overlay.innerHTML = `
+                <div class="movie-title">${movie.title || movie.name}</div>
+                <div class="movie-details">
+                    <div class="movie-rating">⭐ ${rating}</div>
+                    <div class="movie-year">${year}</div>
+                </div>
+                <div class="movie-genres">${genres}</div>
+            `;
+            
+            overlay.appendChild(actionsDiv);
+            movieCard.appendChild(overlay);
+            
+            // Add event listener to show movie details in hero section
+            movieCard.addEventListener('click', async () => {
+                await updateHeroWithDetails(movie);
+            });
+            
+            return movieCard;
+        }
+        
+        function createActionButton(action, tooltip, svgContent) {
+            const button = document.createElement('div');
+            button.className = `action-icon ${action}`;
+            button.innerHTML = `
+                ${svgContent}
+                <div class="action-tooltip">${tooltip}</div>
+            `;
+            return button;
+        }
+        
+        function toggleAction(button, className) {
+            button.classList.toggle(className);
+        }
+        
+        function addToMyList(movie) {
+            let myList = JSON.parse(localStorage.getItem('myList') || '[]');
+            const isInList = myList.some(item => item.id === movie.id);
+            
+            if (isInList) {
+                myList = myList.filter(item => item.id !== movie.id);
+            } else {
+                myList.push(movie);
+            }
+            
+            localStorage.setItem('myList', JSON.stringify(myList));
+        }
+
+        // Genre mapping
+        const GENRE_MAP = {
+            movie: {
+                28: 'Action',
+                12: 'Adventure',
+                16: 'Animation',
+                35: 'Comedy',
+                80: 'Crime',
+                99: 'Documentary',
+                18: 'Drama',
+                10751: 'Family',
+                14: 'Fantasy',
+                36: 'History',
+                27: 'Horror',
+                10402: 'Music',
+                9648: 'Mystery',
+                10749: 'Romance',
+                878: 'Science Fiction',
+                10770: 'TV Movie',
+                53: 'Thriller',
+                10752: 'War',
+                37: 'Western'
+            },
+            tv: {
+                10759: 'Action & Adventure',
+                16: 'Animation',
+                35: 'Comedy',
+                80: 'Crime',
+                99: 'Documentary',
+                18: 'Drama',
+                10751: 'Family',
+                10762: 'Kids',
+                9648: 'Mystery',
+                10763: 'News',
+                10764: 'Reality',
+                10765: 'Sci-Fi & Fantasy',
+                10766: 'Soap',
+                10767: 'Talk',
+                10768: 'War & Politics',
+                37: 'Western'
+            }
+        };
+
+        // Show details for a specific movie
+        async function showMovieDetails(movieId, contentType = 'movie') {
+            const movieDetail = document.getElementById('movie-detail');
+            if (!movieDetail) return;
+            
+            // Show loading state
+            movieDetail.style.display = 'block';
+            movieDetail.innerHTML = '<div style="text-align: center; padding: 50px;">Loading...</div>';
+            
+            try {
+                // Fetch movie details and credits
+                const [details, credits] = await Promise.all([
+                    fetch(`${BASE_URL}/${contentType}/${movieId}?api_key=${API_KEY}&language=en-US`).then(res => res.json()),
+                    fetch(`${BASE_URL}/${contentType}/${movieId}/credits?api_key=${API_KEY}&language=en-US`).then(res => res.json())
+                ]);
+                
+                if (!details) {
+                    movieDetail.innerHTML = '<div style="text-align: center; padding: 50px;">Error loading details</div>';
+                    return;
+                }
+                
+                // Format release date
+                const releaseDate = details.release_date || details.first_air_date;
+                const year = releaseDate ? new Date(releaseDate).getFullYear() : '';
+                
+                // Format runtime/duration
+                let runtime = '';
+                if (contentType === 'movie') {
+                    const hours = Math.floor(details.runtime / 60);
+                    const minutes = details.runtime % 60;
+                    runtime = details.runtime ? `${hours}h ${minutes}m` : '';
+                } else {
+                    runtime = details.episode_run_time?.[0] ? `${details.episode_run_time[0]}m` : '';
+                }
+                
+                // Format genres
+                const genres = details.genres ? details.genres.map(genre => genre.name).join(', ') : '';
+                
+                // Create HTML for movie details
+                const detailHTML = `
+                    <div class="movie-info">
+                        <div class="movie-poster" style="background-image: url('${IMAGE_BASE_URL}${POSTER_SIZE}${details.poster_path}')"></div>
+                        <div class="movie-text">
+                            <h2 class="movie-title">${details.title || details.name}</h2>
+                            <div class="movie-meta">
+                                <span>${year}</span>
+                                <span>${details.vote_average ? `⭐ ${details.vote_average.toFixed(1)}` : ''}</span>
+                                <span>${runtime}</span>
+                                <span>${genres}</span>
+                            </div>
+                            <p class="movie-description">${details.overview || 'No description available.'}</p>
+                            <div class="movie-cast">
+                                <h3 class="cast-title">Cast</h3>
+                                <div class="cast-list">
+                                    ${credits?.cast?.slice(0, 10).map(actor => `
+                                        <div class="cast-item">
+                                            <div class="cast-image" style="background-image: url('${actor.profile_path ? IMAGE_BASE_URL + PROFILE_SIZE + actor.profile_path : 'placeholder.jpg'}')"></div>
+                                            <div class="cast-name">${actor.name}</div>
+                                        </div>
+                                    `).join('') || 'No cast information available.'}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Update the details section
+                movieDetail.innerHTML = detailHTML;
+                
+                // Scroll to the detail section
+                movieDetail.scrollIntoView({ behavior: 'smooth' });
+            } catch (error) {
+                console.error('Error loading details:', error);
+                movieDetail.innerHTML = '<div style="text-align: center; padding: 50px;">Error loading details</div>';
+            }
+        }
+
+        // Update hero section with movie details
+        async function updateHeroWithDetails(movie) {
+            const hero = document.getElementById('hero-section');
+            const heroTitle = document.getElementById('hero-title');
+            const playButton = document.querySelector('.play-btn');
+            const infoButton = document.querySelector('.info-btn');
+            
+            // Update hero background and title
+            if (movie.backdrop_path) {
+                hero.style.backgroundImage = `url('${IMAGE_BASE_URL}${BACKDROP_SIZE}${movie.backdrop_path}')`;
+            }
+            heroTitle.textContent = movie.title || movie.name;
+            
+            // Update play button
+            playButton.onclick = async () => {
+                const contentType = movie.media_type || 'movie';
+                const videoKey = await getVideoKey(movie.id, contentType);
+                playVideo(videoKey);
+            };
+            
+            // Update info button
+            infoButton.onclick = () => {
+                const contentType = movie.media_type || 'movie';
+                showMovieDetails(movie.id, contentType);
+            };
+            
+            // Scroll to top
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // Initialize hero section with random content
+        async function initializeHeroSection(category) {
+            let randomContent;
+            
+            switch(category) {
+                case 'home':
+                    const [movies, tvShows] = await Promise.all([
+                        fetch(`${BASE_URL}/movie/popular?api_key=${API_KEY}&language=en-US`).then(res => res.json()),
+                        fetch(`${BASE_URL}/tv/popular?api_key=${API_KEY}&language=en-US`).then(res => res.json())
+                    ]);
+                    randomContent = shuffleArray([...movies.results, ...tvShows.results])[0];
+                    break;
+                    
+                case 'movies':
+                    const [trendingMovies, nowPlaying, popularMovies] = await Promise.all([
+                        fetch(`${BASE_URL}/trending/movie/day?api_key=${API_KEY}&language=en-US`).then(res => res.json()),
+                        fetch(`${BASE_URL}/movie/now_playing?api_key=${API_KEY}&language=en-US`).then(res => res.json()),
+                        fetch(`${BASE_URL}/movie/popular?api_key=${API_KEY}&language=en-US`).then(res => res.json())
+                    ]);
+                    randomContent = shuffleArray([...trendingMovies.results, ...nowPlaying.results, ...popularMovies.results])[0];
+                    break;
+                    
+                case 'tvshows':
+                    const [trendingShows, airingToday, popularShows] = await Promise.all([
+                        fetch(`${BASE_URL}/trending/tv/day?api_key=${API_KEY}&language=en-US`).then(res => res.json()),
+                        fetch(`${BASE_URL}/tv/airing_today?api_key=${API_KEY}&language=en-US`).then(res => res.json()),
+                        fetch(`${BASE_URL}/tv/popular?api_key=${API_KEY}&language=en-US`).then(res => res.json())
+                    ]);
+                    randomContent = shuffleArray([...trendingShows.results, ...airingToday.results, ...popularShows.results])[0];
+                    break;
+                    
+                case 'mylist':
+                    const myList = JSON.parse(localStorage.getItem('myList') || '[]');
+                    randomContent = shuffleArray(myList)[0];
+                    break;
+            }
+            
+            if (randomContent) {
+                await updateHeroWithDetails(randomContent);
+            }
+        }
+
+        // Initialize with Home content and random hero
+        loadHomeContent();
+        initializeHeroSection('home');
+
+        // Add scroll functionality
+        function scrollRow(rowId, amount) {
+            const row = document.getElementById(rowId);
+            row.scrollBy({
+                left: amount,
+                behavior: 'smooth'
+            });
+        }
+
+        // Add keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            const activeRow = document.querySelector('.movie-row:focus');
+            if (activeRow) {
+                if (e.key === 'ArrowLeft') {
+                    scrollRow(activeRow.id, -300);
+                } else if (e.key === 'ArrowRight') {
+                    scrollRow(activeRow.id, 300);
+                }
+            }
+        });
+
+        // Make rows focusable
+        document.querySelectorAll('.movie-row').forEach(row => {
+            row.setAttribute('tabindex', '0');
+        });
+
+        // Add these new functions
+        async function getVideoKey(contentId, contentType) {
+            try {
+                const response = await fetch(`${BASE_URL}/${contentType}/${contentId}/videos?api_key=${API_KEY}&language=en-US`);
+                const data = await response.json();
+                
+                // Find the first official trailer
+                const trailer = data.results.find(video => 
+                    video.type === 'Trailer' && 
+                    video.site === 'YouTube' &&
+                    (video.official || video.name.toLowerCase().includes('trailer'))
+                );
+                
+                return trailer ? trailer.key : null;
+            } catch (error) {
+                console.error('Error fetching video:', error);
+                return null;
+            }
+        }
+
+        function playVideo(videoKey) {
+            const modal = document.getElementById('videoModal');
+            const videoPlayer = document.getElementById('videoPlayer');
+            const noTrailer = document.getElementById('noTrailer');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            
+            // Show loading spinner
+            loadingSpinner.style.display = 'block';
+            videoPlayer.innerHTML = '';
+            noTrailer.style.display = 'none';
+            
+            if (videoKey) {
+                // Create iframe after a short delay to show loading spinner
+                setTimeout(() => {
+                    videoPlayer.innerHTML = `
+                        <iframe class="video-player" 
+                            src="https://www.youtube.com/embed/${videoKey}?autoplay=1&rel=0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen>
+                        </iframe>
+                    `;
+                    loadingSpinner.style.display = 'none';
+                }, 500);
+            } else {
+                loadingSpinner.style.display = 'none';
+                noTrailer.style.display = 'flex';
+            }
+        }
+
+        function closeVideo() {
+            const modal = document.getElementById('videoModal');
+            const videoPlayer = document.getElementById('videoPlayer');
+            
+            videoPlayer.innerHTML = ''; // Clear the iframe
+            modal.style.display = 'none';
+            document.body.style.overflow = ''; // Re-enable scrolling
+        }
+
+        // Close video when clicking outside
+        document.getElementById('videoModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeVideo();
+            }
+        });
+
+        // Close video with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeVideo();
+            }
+        });
+
+        // Add removeFromMyList function
+        function removeFromMyList(movie) {
+            let myList = JSON.parse(localStorage.getItem('myList') || '[]');
+            myList = myList.filter(item => item.id !== movie.id);
+            localStorage.setItem('myList', JSON.stringify(myList));
+        }
+
+        // Profile dropdown functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const profileIcon = document.getElementById('profileIcon');
+            const profileDropdown = document.getElementById('profileDropdown');
+            const profileName = document.getElementById('profileName');
+            const profileEmail = document.getElementById('profileEmail');
+            const logoutBtn = document.getElementById('logoutBtn');
+            
+            // Toggle dropdown when profile icon is clicked
+            profileIcon.addEventListener('click', function(e) {
+                e.stopPropagation();
+                profileDropdown.classList.toggle('show');
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!profileIcon.contains(e.target) && !profileDropdown.contains(e.target)) {
+                    profileDropdown.classList.remove('show');
+                }
+            });
+            
+            // Get current user information
+            import('./auth.js').then(module => {
+                const auth = module.auth;
+                
+                // Update profile info when auth state changes
+                module.onAuthStateChange(user => {
+                    if (user) {
+                        // Extract username from email (part before @)
+                        const email = user.email;
+                        const username = email.split('@')[0];
+                        // Capitalize first letter of username
+                        const displayName = username.charAt(0).toUpperCase() + username.slice(1);
+                        
+                        profileName.textContent = displayName;
+                        profileEmail.textContent = email;
+                    } else {
+                        // Redirect to login if not authenticated
+                        window.location.href = 'login.html';
+                    }
+                });
+                
+                // Handle logout
+                logoutBtn.addEventListener('click', async function(e) {
+                    e.preventDefault();
+                    try {
+                        await module.logout();
+                        window.location.href = 'index.html';
+                    } catch (error) {
+                        console.error('Logout error:', error);
+                        alert('Failed to log out. Please try again.');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html> 
