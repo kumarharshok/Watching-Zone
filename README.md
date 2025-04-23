@@ -1,4 +1,4 @@
-# Netflix Clone Project
+# Watching Zone Project
 
 This is a Netflix clone built as part of a college project. It mimics the layout and functionality of Netflix, including features like user authentication (via Firebase), movie listing (using TMDB API), and dynamic content loading.
 
@@ -41,7 +41,7 @@ This project is a simple clone of Netflix. It allows users to:
   - Firebase (for authentication and Firestore, if needed)
   
 - **Deployment**:
-  - [Vercel](https://vercel.com/) for hosting the site.
+  - [Vercel](https://watching-zone-omega.vercel.app/) for hosting the site.
 
 ## Setup Instructions
 
