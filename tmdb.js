@@ -3,7 +3,7 @@
 // Your API key - you'll need to get this from TMDB
 // Visit https://www.themoviedb.org/signup to create an account
 // Then go to https://www.themoviedb.org/settings/api to get your API key
-const API_KEY = '0f49131a500259b84c7cbb8e4590f60f';
+const API_KEY = '754359c13d7e06cf6d2f1fc4a65927c7';
 const BASE_URL = 'https://api.themoviedb.org/3';
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/';
 
