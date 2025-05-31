@@ -41,7 +41,7 @@ This project is a simple clone of Netflix. It allows users to:
   - Firebase (for authentication and Firestore, if needed)
   
 - **Deployment**:
-  - [Vercel](https://watching-zone-omega.vercel.app/) for hosting the site.
+  - [Vercel](https://watching-zone-cdkw.vercel.app/) for hosting the site.
 
 ## Setup Instructions
 
